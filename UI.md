@@ -1,997 +1,1278 @@
+# UI Module
+
+This module provides comprehensive UI functionality for creating and managing user interfaces in Fortnite experiences.
+
+## GetPlayerUI Function
 
 ```verse
 UI := module:
-
+    # Returns the `player_ui` associated with `Player`.
+    # Fails if there is no `player_ui` associated with `Player`.
+    GetPlayerUI<native><public>(Player:player)<transacts><decides>:player_ui
 ```
-# Returns the `player_ui` associated with `Player`.
-        # Fails if there is no `player_ui` associated with `Player`.
-
-```verse
-        GetPlayerUI<native><public>(Player:player)<transacts><decides>:player_ui
 
+Retrieves the player UI associated with a player. Fails if there is no player UI associated with the player.
 
-```
-        # The main interface for adding and removing `widget`s to a player's UI.
+## Player UI Class
 
 ```verse
-        player_ui<native><public> := class<final><epic_internal>:
-
+# The main interface for adding and removing `widget`s to a player's UI.
+player_ui<native><public> := class<final><epic_internal>:
 ```
-            # Adds `Widget` to this `player_ui` using default `player_ui_slot` configuration options.
 
-```verse
-            AddWidget<native><public>(Widget:widget):void
-
+The main interface for adding and removing widgets to a player's UI.
 
-```
-            # Adds `Widget` to this `player_ui` using `Slot` for configuration options.
+### Widget Management
 
+#### AddWidget (Default Slot)
 ```verse
-            AddWidget<native><public>(Widget:widget, Slot:player_ui_slot):void
-
-
+# Adds `Widget` to this `player_ui` using default `player_ui_slot` configuration options.
+AddWidget<native><public>(Widget:widget):void
 ```
-            # Removes `Widget` from this `player_ui`.
 
-```verse
-            RemoveWidget<native><public>(Widget:widget):void
-
+Adds a widget to the player UI using default slot configuration options.
 
-```
-        # Base class for all UI elements drawn on the `player`'s screen.
-
+#### AddWidget (Custom Slot)
 ```verse
-        widget<native><public> := class<abstract><unique><epic_internal>:
-
+# Adds `Widget` to this `player_ui` using `Slot` for configuration options.
+AddWidget<native><public>(Widget:widget, Slot:player_ui_slot):void
 ```
-            # Shows or hides the `widget` without removing itself from the containing `player_ui`.
-            # See `widget_visibility` for details.
 
-```verse
-            SetVisibility<native><public>(InVisibility:widget_visibility):void
-
+Adds a widget to the player UI using custom slot configuration options.
 
-```
-            # Returns the current `widget_visibility` state.
-
+#### RemoveWidget
 ```verse
-            GetVisibility<native><public>():widget_visibility
-
-
+# Removes `Widget` from this `player_ui`.
+RemoveWidget<native><public>(Widget:widget):void
 ```
-            # Enables or disables whether the `player` can interact with this `widget`.
-
-```verse
-            SetEnabled<native><public>(InIsEnabled:logic):void
 
+Removes a widget from the player UI.
 
-```
-            # `true` if this `widget` can be modified interactively by the player.
+## Widget Base Class
 
 ```verse
-            IsEnabled<native><public>():logic
-
-
+# Base class for all UI elements drawn on the `player`'s screen.
+widget<native><public> := class<abstract><unique><epic_internal>:
 ```
-            # Returns the `widget`'s parent `widget`.
-            # Fails if no parent exists, such as if this `widget` is not in the `player_ui` or is itself the root `widget`.
-
-```verse
-            GetParentWidget<native><public>()<transacts><decides>:widget
 
+Base class for all UI elements drawn on the player's screen.
 
-```
-            # Returns the `widget` that added this `widget` to the `player_ui`. The root `widget` will return itself.
-            # Fails if this `widget` is not in the `player_ui`.
+### Visibility Management
 
+#### SetVisibility
 ```verse
-            GetRootWidget<native><public>()<transacts><decides>:widget
-
-
+# Shows or hides the `widget` without removing itself from the containing `player_ui`.
+# See `widget_visibility` for details.
+SetVisibility<native><public>(InVisibility:widget_visibility):void
 ```
-        # `widget` creation configuration options.
-
-```verse
-        player_ui_slot<native><public> := struct:
 
-```
-            # Controls `widget` rendering order. Greater values will be draw in front of lesser values.
+Shows or hides the widget without removing it from the containing player UI.
 
+#### GetVisibility
 ```verse
-            ZOrder<native><public>:type {_X:int where 0 <= _X, _X <= 2147483647} = external {}
-
-
+# Returns the current `widget_visibility` state.
+GetVisibility<native><public>():widget_visibility
 ```
-            # Controls `widget` input event consumption.
-
-```verse
-            InputMode<native><public>:ui_input_mode = external {}
 
+Returns the current widget visibility state.
 
-```
-        # `widget` input consumption mode.
+### Interaction Management
 
+#### SetEnabled
 ```verse
-        ui_input_mode<native><public> := enum:
-
+# Enables or disables whether the `player` can interact with this `widget`.
+SetEnabled<native><public>(InIsEnabled:logic):void
 ```
-            # `widget` does not consume any input.
-
-```verse
-            None
 
-```
-            # `widget` consumes all inputs
+Enables or disables player interaction with this widget.
 
+#### IsEnabled
 ```verse
-            All
-
-
+# `true` if this `widget` can be modified interactively by the player.
+IsEnabled<native><public>():logic
 ```
-        # Parameters for `event`s signalled by a `widget`.
 
-```verse
-        widget_message<native><public> := struct:
+Returns true if this widget can be modified interactively by the player.
 
-```
-            # The `player` that triggered the `event`.
+### Hierarchy Management
 
+#### GetParentWidget
 ```verse
-            Player<native><public>:player
-
-
+# Returns the `widget`'s parent `widget`.
+# Fails if no parent exists, such as if this `widget` is not in the `player_ui` or is itself the root `widget`.
+GetParentWidget<native><public>()<transacts><decides>:widget
 ```
-            # The `widget` that triggered the `event`.
-
-```verse
-            Source<native><public>:widget
 
+Returns the widget's parent widget. Fails if no parent exists.
 
-```
-        # Used by `widget.SetVisibility` determine how a `widget` is shown in the user interface.
-
+#### GetRootWidget
 ```verse
-        widget_visibility<native><public> := enum:
-
+# Returns the `widget` that added this `widget` to the `player_ui`. The root `widget` will return itself.
+# Fails if this `widget` is not in the `player_ui`.
+GetRootWidget<native><public>()<transacts><decides>:widget
 ```
-            # The `widget` is visible and occupies layout space.
 
-```verse
-            Visible
+Returns the root widget that added this widget to the player UI. The root widget returns itself.
 
-```
-            # The `widget` is invisible and does not occupy layout space.
+## Player UI Slot Structure
 
 ```verse
-            Collapsed
-
+# `widget` creation configuration options.
+player_ui_slot<native><public> := struct:
 ```
-            # The `widget` is invisible and occupies layout space.
-
-```verse
-            Hidden
 
+Widget creation configuration options.
 
-```
-        # Used by`widget` orientation modes.
+### Properties
 
+#### ZOrder
 ```verse
-        orientation<native><public> := enum:
-
+# Controls `widget` rendering order. Greater values will be draw in front of lesser values.
+ZOrder<native><public>:type {_X:int where 0 <= _X, _X <= 2147483647} = external {}
 ```
-            # Orient `widget`s from left to right.
 
-```verse
-            Horizontal
-
-```
-            # Orient `widget`s from top to bottom.
+Controls widget rendering order. Greater values are drawn in front of lesser values.
 
+#### InputMode
 ```verse
-            Vertical
-
-
+# Controls `widget` input event consumption.
+InputMode<native><public>:ui_input_mode = external {}
 ```
-        # `widget` horizontal alignment mode.
 
-```verse
-        horizontal_alignment<native><public> := enum:
+Controls widget input event consumption.
 
-```
-            # Center `widget` horizontally within the slot.
+## UI Input Mode Enum
 
 ```verse
-            Center
-
+# `widget` input consumption mode.
+ui_input_mode<native><public> := enum:
 ```
-            # Align `widget` to the left of the slot.
 
-```verse
-            Left
+Widget input consumption mode.
 
-```
-            # Align `widget` to the right of the slot.
+### Input Modes
 
+#### None
 ```verse
-            Right
-
+# `widget` does not consume any input.
+None
 ```
-            # `widget` fills the slot horizontally.
-
-```verse
-            Fill
 
-
-```
-        # `widget` vertical alignment mode.
+Widget does not consume any input.
 
+#### All
 ```verse
-        vertical_alignment<native><public> := enum:
-
+# `widget` consumes all inputs
+All
 ```
-            # Center `widget` vertically within the slot.
 
-```verse
-            Center
+Widget consumes all inputs.
 
-```
-            # Align `widget` to the top of the slot.
+## Widget Message Structure
 
 ```verse
-            Top
-
+# Parameters for `event`s signalled by a `widget`.
+widget_message<native><public> := struct:
 ```
-            # Align `widget` to the bottom of the slot.
 
-```verse
-            Bottom
+Parameters for events signaled by a widget.
 
-```
-            # `widget` fills the slot vertically.
+### Properties
 
+#### Player
 ```verse
-            Fill
-
-
+# The `player` that triggered the `event`.
+Player<native><public>:player
 ```
-        # The anchors of a `widget` determine its the position and sizing relative to its parent.
-        # `anchor`s range from `(0.0, 0.0)` (left, top) to `(1.0, 1.0)` (right, bottom).
 
-```verse
-        anchors<native><public> := struct:
-
-```
-            # Holds the minimum anchors, (left, top). The valid range is between `0.0` and `1.0`.
+The player that triggered the event.
 
+#### Source
 ```verse
-            Minimum<native><public>:vector2 = external {}
-
-
+# The `widget` that triggered the `event`.
+Source<native><public>:widget
 ```
-            # Holds the maximum anchors, (right, bottom). The valid range is between `0.0` and `1.0`.
 
-```verse
-            Maximum<native><public>:vector2 = external {}
+The widget that triggered the event.
 
-
-```
-        # Specifies the gap outside each edge separating a `widget` from its neighbors.
-        # Distance is measured in units where `1.0` unit is the width of a pixel at 1080p resolution.
+## Widget Visibility Enum
 
 ```verse
-        margin<native><public> := struct:
-
+# Used by `widget.SetVisibility` determine how a `widget` is shown in the user interface.
+widget_visibility<native><public> := enum:
 ```
-            # The left edge spacing.
-
-```verse
-            Left<native><public>:float = external {}
 
+Used by widget.SetVisibility to determine how a widget is shown in the user interface.
 
-```
-            # The top edge spacing.
+### Visibility States
 
+#### Visible
 ```verse
-            Top<native><public>:float = external {}
-
-
+# The `widget` is visible and occupies layout space.
+Visible
 ```
-            # The right edge spacing.
-
-```verse
-            Right<native><public>:float = external {}
 
-
-```
-            # The bottom edge spacing.
+The widget is visible and occupies layout space.
 
+#### Collapsed
 ```verse
-            Bottom<native><public>:float = external {}
-
-
+# The `widget` is invisible and does not occupy layout space.
+Collapsed
 ```
-        # Button is a container of a single child widget slot and fires the OnClick event when the button is clicked.
 
-```verse
-        button<native><public> := class<final>(widget):
-
-```
-            # The child widget of the button. Used only during initialization of the widget and not modified by SetSlot.
+The widget is invisible and does not occupy layout space.
 
+#### Hidden
 ```verse
-            Slot<native><public>:button_slot
-
-
+# The `widget` is invisible and occupies layout space.
+Hidden
 ```
-            # Sets the child widget slot.
 
-```verse
-            SetWidget<native><public>(InSlot:button_slot):void
+The widget is invisible and occupies layout space.
 
-
-```
-            # Subscribable event that fires when the button is clicked.
+## Orientation Enum
 
 ```verse
-            OnClick<public>():listenable(widget_message) = external {}
-
-
+# Used by`widget` orientation modes.
+orientation<native><public> := enum:
 ```
-        # Slot for button widget.
 
-```verse
-        button_slot<native><public> := struct:
+Used by widget orientation modes.
 
-```
-            # The widget assigned to this slot.
+### Orientation Types
 
+#### Horizontal
 ```verse
-            Widget<native><public>:widget
-
-
+# Orient `widget`s from left to right.
+Horizontal
 ```
-            # Horizontal alignment of the widget inside the slot.
-
-```verse
-            HorizontalAlignment<native><public>:horizontal_alignment = external {}
 
+Orient widgets from left to right.
 
-```
-            # Vertical alignment of the widget inside the slot.
-
+#### Vertical
 ```verse
-            VerticalAlignment<native><public>:vertical_alignment = external {}
-
-
+# Orient `widget`s from top to bottom.
+Vertical
 ```
-            # Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
-
-```verse
-            Padding<native><public>:margin = external {}
 
+Orient widgets from top to bottom.
 
-```
-        # Canvas is a container widget that allows for arbitrary positioning of widgets in the canvas' slots.
+## Horizontal Alignment Enum
 
 ```verse
-        canvas<native><public> := class<final>(widget):
-
+# `widget` horizontal alignment mode.
+horizontal_alignment<native><public> := enum:
 ```
-            # The child widgets of the canvas. Used only during initialization of the widget and not modified by Add/RemoveWidget.
 
-```verse
-            Slots<native><public>:[]canvas_slot = external {}
-
+Widget horizontal alignment mode.
 
-```
-            # Adds a new child slot to the canvas.
+### Alignment Options
 
+#### Center
 ```verse
-            AddWidget<native><public>(Slot:canvas_slot):void
-
-
+# Center `widget` horizontally within the slot.
+Center
 ```
-            # Removes a slot containing the given widget.
 
-```verse
-            RemoveWidget<native><public>(Widget:widget):void
-
+Center widget horizontally within the slot.
 
+#### Left
+```verse
+# Align `widget` to the left of the slot.
+Left
 ```
-        # Slot for a canvas widget.
 
-```verse
-        canvas_slot<native><public> := struct:
+Align widget to the left of the slot.
 
+#### Right
+```verse
+# Align `widget` to the right of the slot.
+Right
 ```
-            # The border for the margin and how the widget is resized with its parent.
-            # Values are defined between 0.0 and 1.0.
 
+Align widget to the right of the slot.
+
+#### Fill
 ```verse
-            Anchors<native><public>:anchors = external {}
+# `widget` fills the slot horizontally.
+Fill
+```
 
+Widget fills the slot horizontally.
 
-```
-            # The offset that defined the size and position of the widget.
-            # When the anchors are well defined, the Offsets.Left represent the distance in pixels from the Anchors Minimum.X, the Offsets.Bottom represent the distance in pixel from the Anchors Maximum.Y, effectively controlling the desired widget size. When the anchors are not well defined, the Offsets.Left and Offsets.Top represent the widget position and Offsets.Right and Offset.Bottom represent the widget size.
+## Vertical Alignment Enum
 
 ```verse
-            Offsets<native><public>:margin = external {}
+# `widget` vertical alignment mode.
+vertical_alignment<native><public> := enum:
+```
 
+Widget vertical alignment mode.
 
-```
-            # When true we use the widget's desired size. The size calculated by the Offsets is ignored.
+### Alignment Options
 
+#### Center
 ```verse
-            SizeToContent<native><public>:logic = external {}
+# Center `widget` vertically within the slot.
+Center
+```
 
+Center widget vertically within the slot.
 
+#### Top
+```verse
+# Align `widget` to the top of the slot.
+Top
 ```
-            # Alignment is the pivot/origin point of the widget.
-            # Starting in the upper left at (0.0,0.0), ending in the lower right at (1.0,1.0).
+
+Align widget to the top of the slot.
 
+#### Bottom
 ```verse
-            Alignment<native><public>:vector2 = external {}
+# Align `widget` to the bottom of the slot.
+Bottom
+```
 
+Align widget to the bottom of the slot.
 
+#### Fill
+```verse
+# `widget` fills the slot vertically.
+Fill
 ```
-            # Z Order of this slot relative to other slots in this canvas panel.
-            # Higher values are rendered last (and so they will appear to be on top)
 
-```verse
-            ZOrder<native><public>:type {_X:int where 0 <= _X, _X <= 2147483647} = external {}
+Widget fills the slot vertically.
 
+## Anchors Structure
 
+```verse
+# The anchors of a `widget` determine its the position and sizing relative to its parent.
+# `anchor`s range from `(0.0, 0.0)` (left, top) to `(1.0, 1.0)` (right, bottom).
+anchors<native><public> := struct:
 ```
-            # The widget assigned to this slot.
 
-```verse
-            Widget<native><public>:widget
+The anchors of a widget determine its position and sizing relative to its parent. Anchors range from (0.0, 0.0) (left, top) to (1.0, 1.0) (right, bottom).
 
+### Properties
 
+#### Minimum
+```verse
+# Holds the minimum anchors, (left, top). The valid range is between `0.0` and `1.0`.
+Minimum<native><public>:vector2 = external {}
 ```
-        # Make a canvas slot for fixed position widget.
-        # If Size is set, then the Offsets is calculated and the SizeToContent is set to false.
-        # If Size is not set, then Right and Bottom are set to zero and are not used. The widget size will be automatically calculated. The SizeToContent is set to true.
-        # The widget is not anchored and will not move if the parent is resized.
-        # The Anchors is set to zero.
 
+Holds the minimum anchors (left, top). Valid range is between 0.0 and 1.0.
+
+#### Maximum
 ```verse
-        MakeCanvasSlot<native><public>(Widget:widget, Position:vector2, ?Size:vector2 = external {}, ?ZOrder:type {_X:int where 0 <= _X, _X <= 2147483647} = external {}, ?Alignment:vector2 = external {})<computes>:canvas_slot
+# Holds the maximum anchors, (right, bottom). The valid range is between `0.0` and `1.0`.
+Maximum<native><public>:vector2 = external {}
+```
 
+Holds the maximum anchors (right, bottom). Valid range is between 0.0 and 1.0.
 
-```
-        # A solid color widget.
+## Margin Structure
 
 ```verse
-        color_block<native><public> := class<final>(widget):
-
+# Specifies the gap outside each edge separating a `widget` from its neighbors.
+# Distance is measured in units where `1.0` unit is the width of a pixel at 1080p resolution.
+margin<native><public> := struct:
 ```
-            # The color of the widget. Used only during initialization of the widget and not modified by SetColor.
 
-```verse
-            DefaultColor<native><public>:color = external {}
+Specifies the gap outside each edge separating a widget from its neighbors. Distance is measured in units where 1.0 unit is the width of a pixel at 1080p resolution.
 
+### Properties
 
+#### Left
+```verse
+# The left edge spacing.
+Left<native><public>:float = external {}
 ```
-            # The opacity of the widget. Used only during initialization of the widget and not modified by SetOpacity.
+
+The left edge spacing.
 
+#### Top
 ```verse
-            DefaultOpacity<native><public>:type {_X:float where 0.000000 <= _X, _X <= 1.000000} = external {}
+# The top edge spacing.
+Top<native><public>:float = external {}
+```
 
+The top edge spacing.
 
+#### Right
+```verse
+# The right edge spacing.
+Right<native><public>:float = external {}
 ```
-            # The size this widget desired to be displayed in. Used only during initialization of the widget and not modified by SetDesiredSize.
+
+The right edge spacing.
 
+#### Bottom
 ```verse
-            DefaultDesiredSize<native><public>:vector2 = external {}
+# The bottom edge spacing.
+Bottom<native><public>:float = external {}
+```
 
+The bottom edge spacing.
 
-```
-            # Sets the widget's color.
+## Button Widget
 
 ```verse
-            SetColor<native><public>(InColor:color):void
+# Button is a container of a single child widget slot and fires the OnClick event when the button is clicked.
+button<native><public> := class<final>(widget):
+```
 
+Button is a container of a single child widget slot and fires the OnClick event when clicked.
 
-```
-            # Gets the widget's color.
+### Properties
 
+#### Slot
 ```verse
-            GetColor<native><public>():color
+# The child widget of the button. Used only during initialization of the widget and not modified by SetSlot.
+Slot<native><public>:button_slot
+```
 
+The child widget of the button. Used only during initialization.
 
-```
-            # Sets the widgets's opacity.
+### Methods
 
+#### SetWidget
 ```verse
-            SetOpacity<native><public>(InOpacity:type {_X:float where 0.000000 <= _X, _X <= 1.000000}):void
+# Sets the child widget slot.
+SetWidget<native><public>(InSlot:button_slot):void
+```
 
+Sets the child widget slot.
 
+#### OnClick
+```verse
+# Subscribable event that fires when the button is clicked.
+OnClick<public>():listenable(widget_message) = external {}
 ```
-            # Gets the widget's opacity.
 
-```verse
-            GetOpacity<native><public>():type {_X:float where 0.000000 <= _X, _X <= 1.000000}
+Subscribable event that fires when the button is clicked.
 
+## Button Slot Structure
 
+```verse
+# Slot for button widget.
+button_slot<native><public> := struct:
 ```
-            # Sets the size this widget desired to be displayed in.
 
-```verse
-            SetDesiredSize<native><public>(InDesiredSize:vector2):void
+Slot for button widget.
 
+### Properties
 
+#### Widget
+```verse
+# The widget assigned to this slot.
+Widget<native><public>:widget
 ```
-            # Gets the size this widget desired to be displayed in.
+
+The widget assigned to this slot.
 
+#### HorizontalAlignment
 ```verse
-            GetDesiredSize<native><public>():vector2
+# Horizontal alignment of the widget inside the slot.
+HorizontalAlignment<native><public>:horizontal_alignment = external {}
+```
 
+Horizontal alignment of the widget inside the slot.
 
+#### VerticalAlignment
+```verse
+# Vertical alignment of the widget inside the slot.
+VerticalAlignment<native><public>:vertical_alignment = external {}
 ```
-        # Tiling options values
 
-```verse
-        image_tiling<native><public> := enum:
+Vertical alignment of the widget inside the slot.
 
+#### Padding
+```verse
+# Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
+Padding<native><public>:margin = external {}
 ```
-            # Stretch the image to fit the available space.
 
-```verse
-            Stretch
+Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
 
-```
-            # Repeat/Wrap the image to fill the available space.
+## Canvas Widget
 
 ```verse
-            Repeat
+# Canvas is a container widget that allows for arbitrary positioning of widgets in the canvas' slots.
+canvas<native><public> := class<final>(widget):
+```
 
+Canvas is a container widget that allows for arbitrary positioning of widgets in the canvas' slots.
 
-```
-        # A widget to display a texture.
+### Properties
 
+#### Slots
 ```verse
-        texture_block<native><public> := class(widget):
-
+# The child widgets of the canvas. Used only during initialization of the widget and not modified by Add/RemoveWidget.
+Slots<native><public>:[]canvas_slot = external {}
 ```
-            # The image to render. Used only during initialization of the widget and not modified by SetImage.
 
-```verse
-            DefaultImage<native><public>:texture
+The child widgets of the canvas. Used only during initialization.
 
+### Methods
 
+#### AddWidget
+```verse
+# Adds a new child slot to the canvas.
+AddWidget<native><public>(Slot:canvas_slot):void
 ```
-            # Tinting applied to the image. Used only during initialization of the widget and not modified by SetTint.
+
+Adds a new child slot to the canvas.
 
+#### RemoveWidget
 ```verse
-            DefaultTint<native><public>:color = external {}
+# Removes a slot containing the given widget.
+RemoveWidget<native><public>(Widget:widget):void
+```
 
+Removes a slot containing the given widget.
 
-```
-            # The size this widget desired to be displayed in. Used only during initialization of the widget and not modified by SetDesiredSize.
+## Canvas Slot Structure
 
 ```verse
-            DefaultDesiredSize<native><public>:vector2 = external {}
+# Slot for a canvas widget.
+canvas_slot<native><public> := struct:
+```
 
+Slot for a canvas widget.
 
-```
-            # The horizontal tiling option. Used only during initialization of the widget and not modified by SetTiling.
+### Properties
 
+#### Anchors
 ```verse
-            DefaultHorizontalTiling<native><public>:image_tiling = external {}
+# The border for the margin and how the widget is resized with its parent.
+# Values are defined between 0.0 and 1.0.
+Anchors<native><public>:anchors = external {}
+```
 
+The border for the margin and how the widget is resized with its parent. Values are defined between 0.0 and 1.0.
 
+#### Offsets
+```verse
+# The offset that defined the size and position of the widget.
+# When the anchors are well defined, the Offsets.Left represent the distance in pixels from the Anchors Minimum.X, the Offsets.Bottom represent the distance in pixel from the Anchors Maximum.Y, effectively controlling the desired widget size. When the anchors are not well defined, the Offsets.Left and Offsets.Top represent the widget position and Offsets.Right and Offset.Bottom represent the widget size.
+Offsets<native><public>:margin = external {}
 ```
-            # The vertical tiling option. Used only during initialization of the widget and not modified by SetTiling.
 
+The offset that defines the size and position of the widget.
+
+#### SizeToContent
 ```verse
-            DefaultVerticalTiling<native><public>:image_tiling = external {}
+# When true we use the widget's desired size. The size calculated by the Offsets is ignored.
+SizeToContent<native><public>:logic = external {}
+```
 
+When true, uses the widget's desired size. The size calculated by the Offsets is ignored.
 
+#### Alignment
+```verse
+# Alignment is the pivot/origin point of the widget.
+# Starting in the upper left at (0.0,0.0), ending in the lower right at (1.0,1.0).
+Alignment<native><public>:vector2 = external {}
 ```
-            # Sets the image to render.
+
+Alignment is the pivot/origin point of the widget. Starting in the upper left at (0.0,0.0), ending in the lower right at (1.0,1.0).
 
+#### ZOrder
 ```verse
-            SetImage<native><public>(InImage:texture):void
+# Z Order of this slot relative to other slots in this canvas panel.
+# Higher values are rendered last (and so they will appear to be on top)
+ZOrder<native><public>:type {_X:int where 0 <= _X, _X <= 2147483647} = external {}
+```
 
+Z Order of this slot relative to other slots in this canvas panel. Higher values are rendered last.
 
+#### Widget
+```verse
+# The widget assigned to this slot.
+Widget<native><public>:widget
 ```
-            # Gets the image to render.
 
-```verse
-            GetImage<native><public>():texture
+The widget assigned to this slot.
 
+## MakeCanvasSlot Function
 
+```verse
+# Make a canvas slot for fixed position widget.
+# If Size is set, then the Offsets is calculated and the SizeToContent is set to false.
+# If Size is not set, then Right and Bottom are set to zero and are not used. The widget size will be automatically calculated. The SizeToContent is set to true.
+# The widget is not anchored and will not move if the parent is resized.
+# The Anchors is set to zero.
+MakeCanvasSlot<native><public>(Widget:widget, Position:vector2, ?Size:vector2 = external {}, ?ZOrder:type {_X:int where 0 <= _X, _X <= 2147483647} = external {}, ?Alignment:vector2 = external {})<computes>:canvas_slot
 ```
-            # Sets the tint applied to the image.
 
-```verse
-            SetTint<native><public>(InColor:color):void
+Makes a canvas slot for fixed position widget. If Size is set, the Offsets is calculated and SizeToContent is set to false. If Size is not set, Right and Bottom are set to zero and the widget size will be automatically calculated with SizeToContent set to true. The widget is not anchored and will not move if the parent is resized.
 
+## Color Block Widget
 
+```verse
+# A solid color widget.
+color_block<native><public> := class<final>(widget):
 ```
-            # Gets the tint applied to the image.
 
-```verse
-            GetTint<native><public>():color
+A solid color widget.
 
+### Properties
 
+#### DefaultColor
+```verse
+# The color of the widget. Used only during initialization of the widget and not modified by SetColor.
+DefaultColor<native><public>:color = external {}
 ```
-            # Sets the size this widget desired to be displayed in.
+
+The color of the widget. Used only during initialization.
 
+#### DefaultOpacity
 ```verse
-            SetDesiredSize<native><public>(InDesiredSize:vector2):void
+# The opacity of the widget. Used only during initialization of the widget and not modified by SetOpacity.
+DefaultOpacity<native><public>:type {_X:float where 0.000000 <= _X, _X <= 1.000000} = external {}
+```
 
+The opacity of the widget. Used only during initialization.
 
+#### DefaultDesiredSize
+```verse
+# The size this widget desired to be displayed in. Used only during initialization of the widget and not modified by SetDesiredSize.
+DefaultDesiredSize<native><public>:vector2 = external {}
 ```
-            # Gets the size this widget desired to be displayed in.
 
-```verse
-            GetDesiredSize<native><public>():vector2
+The size this widget desired to be displayed in. Used only during initialization.
 
+### Methods
 
+#### SetColor
+```verse
+# Sets the widget's color.
+SetColor<native><public>(InColor:color):void
 ```
-            # Sets the tiling option when the image is smaller than the allocated size.
+
+Sets the widget's color.
 
+#### GetColor
 ```verse
-            SetTiling<native><public>(InHorizontalTiling:image_tiling, InVerticalTiling:image_tiling):void
+# Gets the widget's color.
+GetColor<native><public>():color
+```
 
+Gets the widget's color.
 
+#### SetOpacity
+```verse
+# Sets the widgets's opacity.
+SetOpacity<native><public>(InOpacity:type {_X:float where 0.000000 <= _X, _X <= 1.000000}):void
 ```
-            # Gets the tiling option.
 
+Sets the widget's opacity.
+
+#### GetOpacity
 ```verse
-            GetTiling<native><public>():tuple(image_tiling, image_tiling)
+# Gets the widget's opacity.
+GetOpacity<native><public>():type {_X:float where 0.000000 <= _X, _X <= 1.000000}
+```
 
+Gets the widget's opacity.
 
+#### SetDesiredSize
+```verse
+# Sets the size this widget desired to be displayed in.
+SetDesiredSize<native><public>(InDesiredSize:vector2):void
 ```
-        # A widget to display a material.
 
-```verse
-        material_block<native><public> := class(widget):
+Sets the size this widget desired to be displayed in.
 
+#### GetDesiredSize
+```verse
+# Gets the size this widget desired to be displayed in.
+GetDesiredSize<native><public>():vector2
 ```
-            # The image to render. Used only during initialization of the widget and not modified by SetImage.
 
-```verse
-            DefaultImage<native><public>:material
+Gets the size this widget desired to be displayed in.
 
+## Image Tiling Enum
 
+```verse
+# Tiling options values
+image_tiling<native><public> := enum:
 ```
-            # Tinting applied to the image. Used only during initialization of the widget and not modified by SetTint.
 
-```verse
-            DefaultTint<native><public>:color = external {}
+Tiling options values.
 
+### Tiling Options
 
+#### Stretch
+```verse
+# Stretch the image to fit the available space.
+Stretch
 ```
-            # The size this widget desired to be displayed in. Used only during initialization of the widget and not modified by SetDesiredSize.
 
+Stretch the image to fit the available space.
+
+#### Repeat
 ```verse
-            DefaultDesiredSize<native><public>:vector2 = external {}
+# Repeat/Wrap the image to fill the available space.
+Repeat
+```
 
+Repeat/Wrap the image to fill the available space.
 
-```
-            # Sets the image to render.
+## Texture Block Widget
 
 ```verse
-            SetImage<native><public>(InImage:material):void
+# A widget to display a texture.
+texture_block<native><public> := class(widget):
+```
 
+A widget to display a texture.
 
-```
-            # Gets the image to render.
+### Properties
 
+#### DefaultImage
 ```verse
-            GetImage<native><public>():material
+# The image to render. Used only during initialization of the widget and not modified by SetImage.
+DefaultImage<native><public>:texture
+```
 
+The image to render. Used only during initialization.
 
+#### DefaultTint
+```verse
+# Tinting applied to the image. Used only during initialization of the widget and not modified by SetTint.
+DefaultTint<native><public>:color = external {}
 ```
-            # Sets the tint applied to the image.
 
+Tinting applied to the image. Used only during initialization.
+
+#### DefaultDesiredSize
 ```verse
-            SetTint<native><public>(InColor:color):void
+# The size this widget desired to be displayed in. Used only during initialization of the widget and not modified by SetDesiredSize.
+DefaultDesiredSize<native><public>:vector2 = external {}
+```
 
+The size this widget desired to be displayed in. Used only during initialization.
 
+#### DefaultHorizontalTiling
+```verse
+# The horizontal tiling option. Used only during initialization of the widget and not modified by SetTiling.
+DefaultHorizontalTiling<native><public>:image_tiling = external {}
 ```
-            # Gets the tint applied to the image.
 
+The horizontal tiling option. Used only during initialization.
+
+#### DefaultVerticalTiling
 ```verse
-            GetTint<native><public>():color
+# The vertical tiling option. Used only during initialization of the widget and not modified by SetTiling.
+DefaultVerticalTiling<native><public>:image_tiling = external {}
+```
 
+The vertical tiling option. Used only during initialization.
 
-```
-            # Sets the size this widget desired to be displayed in.
+### Methods
 
+#### SetImage
 ```verse
-            SetDesiredSize<native><public>(InDesiredSize:vector2):void
+# Sets the image to render.
+SetImage<native><public>(InImage:texture):void
+```
 
+Sets the image to render.
 
+#### GetImage
+```verse
+# Gets the image to render.
+GetImage<native><public>():texture
 ```
-            # Gets the size this widget desired to be displayed in.
 
+Gets the image to render.
+
+#### SetTint
 ```verse
-            GetDesiredSize<native><public>():vector2
+# Sets the tint applied to the image.
+SetTint<native><public>(InColor:color):void
+```
 
+Sets the tint applied to the image.
 
+#### GetTint
+```verse
+# Gets the tint applied to the image.
+GetTint<native><public>():color
 ```
-        # Overlay is a container consisting of widgets stacked on top of each other.
 
-```verse
-        overlay<native><public> := class<final>(widget):
+Gets the tint applied to the image.
 
+#### SetDesiredSize
+```verse
+# Sets the size this widget desired to be displayed in.
+SetDesiredSize<native><public>(InDesiredSize:vector2):void
 ```
-            # The child widgets of the overlay. Used only during initialization of the widget and not modified by Add/RemoveWidget.
 
+Sets the size this widget desired to be displayed in.
+
+#### GetDesiredSize
 ```verse
-            Slots<native><public>:[]overlay_slot = external {}
+# Gets the size this widget desired to be displayed in.
+GetDesiredSize<native><public>():vector2
+```
 
+Gets the size this widget desired to be displayed in.
 
+#### SetTiling
+```verse
+# Sets the tiling option when the image is smaller than the allocated size.
+SetTiling<native><public>(InHorizontalTiling:image_tiling, InVerticalTiling:image_tiling):void
 ```
-            # Add a new child slot to the overlay. Slots are added at the end.
 
+Sets the tiling option when the image is smaller than the allocated size.
+
+#### GetTiling
 ```verse
-            AddWidget<native><public>(Slot:overlay_slot):void
+# Gets the tiling option.
+GetTiling<native><public>():tuple(image_tiling, image_tiling)
+```
 
+Gets the tiling option.
 
-```
-            # Removes a slot containing the given widget
+## Material Block Widget
 
 ```verse
-            RemoveWidget<native><public>(Widget:widget):void
+# A widget to display a material.
+material_block<native><public> := class(widget):
+```
 
+A widget to display a material.
 
-```
-        # Slot for an overlay widget
+### Properties
 
+#### DefaultImage
 ```verse
-        overlay_slot<native><public> := struct:
-
+# The image to render. Used only during initialization of the widget and not modified by SetImage.
+DefaultImage<native><public>:material
 ```
-            # The widget assigned to this slot.
 
+The image to render. Used only during initialization.
+
+#### DefaultTint
 ```verse
-            Widget<native><public>:widget
+# Tinting applied to the image. Used only during initialization of the widget and not modified by SetTint.
+DefaultTint<native><public>:color = external {}
+```
 
+Tinting applied to the image. Used only during initialization.
 
+#### DefaultDesiredSize
+```verse
+# The size this widget desired to be displayed in. Used only during initialization of the widget and not modified by SetDesiredSize.
+DefaultDesiredSize<native><public>:vector2 = external {}
 ```
-            # Horizontal alignment of the widget inside the slot.
-            # This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
 
-```verse
-            HorizontalAlignment<native><public>:horizontal_alignment = external {}
+The size this widget desired to be displayed in. Used only during initialization.
 
+### Methods
 
+#### SetImage
+```verse
+# Sets the image to render.
+SetImage<native><public>(InImage:material):void
 ```
-            # Vertical alignment of the widget inside the slot.
-            # This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
 
+Sets the image to render.
+
+#### GetImage
 ```verse
-            VerticalAlignment<native><public>:vertical_alignment = external {}
+# Gets the image to render.
+GetImage<native><public>():material
+```
 
+Gets the image to render.
 
+#### SetTint
+```verse
+# Sets the tint applied to the image.
+SetTint<native><public>(InColor:color):void
 ```
-            # Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
+
+Sets the tint applied to the image.
 
+#### GetTint
 ```verse
-            Padding<native><public>:margin = external {}
+# Gets the tint applied to the image.
+GetTint<native><public>():color
+```
 
+Gets the tint applied to the image.
 
+#### SetDesiredSize
+```verse
+# Sets the size this widget desired to be displayed in.
+SetDesiredSize<native><public>(InDesiredSize:vector2):void
 ```
-        # Stack box is a container of a list of widgets stacked either vertically or horizontally.
 
-```verse
-        stack_box<native><public> := class<final>(widget):
+Sets the size this widget desired to be displayed in.
 
+#### GetDesiredSize
+```verse
+# Gets the size this widget desired to be displayed in.
+GetDesiredSize<native><public>():vector2
 ```
-            # The child widgets of the stack box. Used only during initialization of the widget and not modified by Add/RemoveWidget.
 
-```verse
-            Slots<native><public>:[]stack_box_slot = external {}
+Gets the size this widget desired to be displayed in.
 
+## Overlay Widget
 
+```verse
+# Overlay is a container consisting of widgets stacked on top of each other.
+overlay<native><public> := class<final>(widget):
 ```
-            # The orientation of the stack box. Either stack widgets horizontal or vertical.
 
-```verse
-            Orientation<native><public>:orientation
+Overlay is a container consisting of widgets stacked on top of each other.
 
+### Properties
 
+#### Slots
+```verse
+# The child widgets of the overlay. Used only during initialization of the widget and not modified by Add/RemoveWidget.
+Slots<native><public>:[]overlay_slot = external {}
 ```
-            # Add a new child slot to the stack box. Slots are added at the end.
 
-```verse
-            AddWidget<native><public>(Slot:stack_box_slot):void
+The child widgets of the overlay. Used only during initialization.
 
+### Methods
 
+#### AddWidget
+```verse
+# Add a new child slot to the overlay. Slots are added at the end.
+AddWidget<native><public>(Slot:overlay_slot):void
 ```
-            # Removes a slot containing the given widget
 
+Adds a new child slot to the overlay. Slots are added at the end.
+
+#### RemoveWidget
 ```verse
-            RemoveWidget<native><public>(Widget:widget):void
+# Removes a slot containing the given widget
+RemoveWidget<native><public>(Widget:widget):void
+```
 
+Removes a slot containing the given widget.
 
-```
-        # Slot for a stack_box widget
+## Overlay Slot Structure
 
 ```verse
-        stack_box_slot<native><public> := struct:
-
+# Slot for an overlay widget
+overlay_slot<native><public> := struct:
 ```
-            # The widget assigned to this slot.
 
-```verse
-            Widget<native><public>:widget
+Slot for an overlay widget.
 
+### Properties
 
+#### Widget
+```verse
+# The widget assigned to this slot.
+Widget<native><public>:widget
 ```
-            # Horizontal alignment of the widget inside the slot.
-            # This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
 
+The widget assigned to this slot.
+
+#### HorizontalAlignment
 ```verse
-            HorizontalAlignment<native><public>:horizontal_alignment = external {}
+# Horizontal alignment of the widget inside the slot.
+# This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
+HorizontalAlignment<native><public>:horizontal_alignment = external {}
+```
 
+Horizontal alignment of the widget inside the slot. This alignment is only applied after the layout space for the widget slot is created.
 
+#### VerticalAlignment
+```verse
+# Vertical alignment of the widget inside the slot.
+# This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
+VerticalAlignment<native><public>:vertical_alignment = external {}
 ```
-            # Vertical alignment of the widget inside the slot.
-            # This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
+
+Vertical alignment of the widget inside the slot. This alignment is only applied after the layout space for the widget slot is created.
 
+#### Padding
 ```verse
-            VerticalAlignment<native><public>:vertical_alignment = external {}
+# Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
+Padding<native><public>:margin = external {}
+```
 
+Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
 
-```
-            # Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
+## Stack Box Widget
 
 ```verse
-            Padding<native><public>:margin = external {}
+# Stack box is a container of a list of widgets stacked either vertically or horizontally.
+stack_box<native><public> := class<final>(widget):
+```
 
+Stack box is a container of a list of widgets stacked either vertically or horizontally.
 
-```
-            # The available space will be distributed proportionally.
-            # If not set, the slot will use the desired size of the widget.
+### Properties
 
+#### Slots
 ```verse
-            Distribution<native><public>:?float = external {}
+# The child widgets of the stack box. Used only during initialization of the widget and not modified by Add/RemoveWidget.
+Slots<native><public>:[]stack_box_slot = external {}
+```
 
+The child widgets of the stack box. Used only during initialization.
 
+#### Orientation
+```verse
+# The orientation of the stack box. Either stack widgets horizontal or vertical.
+Orientation<native><public>:orientation
 ```
-        # Text justification values:
-        #   Left: Justify the text logically to the left based on current culture.
-        #   Center: Justify the text in the center.
-        #   Right: Justify the text logically to the right based on current culture.
-        # The Left and Right value will flip when the local culture is right-to-left.
 
-```verse
-        text_justification<native><public> := enum:
-            Left
-            Center
-            Right
-            InvariantLeft
-            InvariantRight
+The orientation of the stack box. Either stack widgets horizontal or vertical.
 
+### Methods
 
+#### AddWidget
+```verse
+# Add a new child slot to the stack box. Slots are added at the end.
+AddWidget<native><public>(Slot:stack_box_slot):void
 ```
-        # Text overflow policy values:
-        #   Clip: Overflowing text will be clipped.
-        #   Ellipsis: Overflowing text will be replaced with an ellipsis.
+
+Adds a new child slot to the stack box. Slots are added at the end.
 
+#### RemoveWidget
 ```verse
-        text_overflow_policy<native><public> := enum:
-            Clip
-            Ellipsis
+# Removes a slot containing the given widget
+RemoveWidget<native><public>(Widget:widget):void
+```
 
+Removes a slot containing the given widget.
 
-```
-        # Base widget for text widget.
+## Stack Box Slot Structure
 
 ```verse
-        text_base<native><public> := class<abstract>(widget):
-
+# Slot for a stack_box widget
+stack_box_slot<native><public> := struct:
 ```
-            # The text to display to the user. Used only during initialization of the widget and not modified by SetText.
 
-```verse
-            DefaultText<native><localizes><public>:message = external {}
+Slot for a stack_box widget.
 
+### Properties
 
+#### Widget
+```verse
+# The widget assigned to this slot.
+Widget<native><public>:widget
 ```
-            # The color of the displayed text. Used only during initialization of the widget and not modified by SetTextColor.
 
+The widget assigned to this slot.
+
+#### HorizontalAlignment
 ```verse
-            DefaultTextColor<native><public>:color = external {}
+# Horizontal alignment of the widget inside the slot.
+# This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
+HorizontalAlignment<native><public>:horizontal_alignment = external {}
+```
 
+Horizontal alignment of the widget inside the slot. This alignment is only applied after the layout space for the widget slot is created.
 
+#### VerticalAlignment
+```verse
+# Vertical alignment of the widget inside the slot.
+# This alignment is only applied after the layout space for the widget slot is created and determines the widget alignment within that space.
+VerticalAlignment<native><public>:vertical_alignment = external {}
 ```
-            # The opacity of the displayed text. Used only during initialization of the widget and not modified by SetTextOpacity.
 
+Vertical alignment of the widget inside the slot. This alignment is only applied after the layout space for the widget slot is created.
+
+#### Padding
 ```verse
-            DefaultTextOpacity<native><public>:type {_X:float where 0.000000 <= _X, _X <= 1.000000} = external {}
+# Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
+Padding<native><public>:margin = external {}
+```
 
+Empty distance in pixels that surrounds the widget inside the slot. Assumes 1080p resolution.
 
+#### Distribution
+```verse
+# The available space will be distributed proportionally.
+# If not set, the slot will use the desired size of the widget.
+Distribution<native><public>:?float = external {}
 ```
-            # The justification to display to the user. Used only during initialization of the widget and not modified by SetJustification.
 
-```verse
-            DefaultJustification<native><public>:text_justification = external {}
+The available space will be distributed proportionally. If not set, the slot will use the desired size of the widget.
 
+## Text Justification Enum
 
+```verse
+# Text justification values:
+#   Left: Justify the text logically to the left based on current culture.
+#   Center: Justify the text in the center.
+#   Right: Justify the text logically to the right based on current culture.
+# The Left and Right value will flip when the local culture is right-to-left.
+text_justification<native><public> := enum:
+    Left
+    Center
+    Right
+    InvariantLeft
+    InvariantRight
 ```
-            # The policy that determine what happens when the text is longer than its allowed length.
-            # Used only during initialization of the widget and not modified by SetOverflowPolicy.
 
-```verse
-            DefaultOverflowPolicy<native><public>:text_overflow_policy = external {}
+Text justification values:
+- **Left**: Justify the text logically to the left based on current culture.
+- **Center**: Justify the text in the center.
+- **Right**: Justify the text logically to the right based on current culture.
+- **InvariantLeft**: Left justification that doesn't flip in right-to-left cultures.
+- **InvariantRight**: Right justification that doesn't flip in right-to-left cultures.
 
+The Left and Right values will flip when the local culture is right-to-left.
 
-```
-            # Sets the text displayed in the widget.
+## Text Overflow Policy Enum
 
 ```verse
-            SetText<native><public>(InText:message):void
+# Text overflow policy values:
+#   Clip: Overflowing text will be clipped.
+#   Ellipsis: Overflowing text will be replaced with an ellipsis.
+text_overflow_policy<native><public> := enum:
+    Clip
+    Ellipsis
+```
 
+Text overflow policy values:
+- **Clip**: Overflowing text will be clipped.
+- **Ellipsis**: Overflowing text will be replaced with an ellipsis.
 
-```
-            # Gets the text currently in the widget.
+## Text Base Widget
 
 ```verse
-            GetText<native><public>():string
+# Base widget for text widget.
+text_base<native><public> := class<abstract>(widget):
+```
 
+Base widget for text widget.
 
-```
-            # Sets the text justification in the widget.
+### Properties
 
+#### DefaultText
 ```verse
-            SetJustification<native><public>(InJustification:text_justification):void
+# The text to display to the user. Used only during initialization of the widget and not modified by SetText.
+DefaultText<native><localizes><public>:message = external {}
+```
 
+The text to display to the user. Used only during initialization.
 
+#### DefaultTextColor
+```verse
+# The color of the displayed text. Used only during initialization of the widget and not modified by SetTextColor.
+DefaultTextColor<native><public>:color = external {}
 ```
-            # Gets the text justification in the widget.
 
+The color of the displayed text. Used only during initialization.
+
+#### DefaultTextOpacity
 ```verse
-            GetJustification<native><public>():text_justification
+# The opacity of the displayed text. Used only during initialization of the widget and not modified by SetTextOpacity.
+DefaultTextOpacity<native><public>:type {_X:float where 0.000000 <= _X, _X <= 1.000000} = external {}
+```
 
+The opacity of the displayed text. Used only during initialization.
 
+#### DefaultJustification
+```verse
+# The justification to display to the user. Used only during initialization of the widget and not modified by SetJustification.
+DefaultJustification<native><public>:text_justification = external {}
 ```
-            # Sets the policy that determine what happens when the text is longer than its allowed length.
 
+The justification to display to the user. Used only during initialization.
+
+#### DefaultOverflowPolicy
 ```verse
-            SetOverflowPolicy<native><public>(InOverflowPolicy:text_overflow_policy):void
+# The policy that determine what happens when the text is longer than its allowed length.
+# Used only during initialization of the widget and not modified by SetOverflowPolicy.
+DefaultOverflowPolicy<native><public>:text_overflow_policy = external {}
+```
 
+The policy that determines what happens when the text is longer than its allowed length. Used only during initialization.
 
-```
-            # Gets the policy that determine what happens when the text is longer than its allowed length.
+### Methods
 
+#### SetText
 ```verse
-            GetOverflowPolicy<native><public>():text_overflow_policy
+# Sets the text displayed in the widget.
+SetText<native><public>(InText:message):void
+```
 
+Sets the text displayed in the widget.
 
+#### GetText
+```verse
+# Gets the text currently in the widget.
+GetText<native><public>():string
 ```
-            # Sets the color of the displayed text.
 
+Gets the text currently in the widget.
+
+#### SetJustification
 ```verse
-            SetTextColor<native><public>(InColor:color):void
+# Sets the text justification in the widget.
+SetJustification<native><public>(InJustification:text_justification):void
+```
 
+Sets the text justification in the widget.
 
+#### GetJustification
+```verse
+# Gets the text justification in the widget.
+GetJustification<native><public>():text_justification
 ```
-            # Gets the color of the displayed text.
+
+Gets the text justification in the widget.
 
+#### SetOverflowPolicy
 ```verse
-            GetTextColor<native><public>():color
+# Sets the policy that determine what happens when the text is longer than its allowed length.
+SetOverflowPolicy<native><public>(InOverflowPolicy:text_overflow_policy):void
+```
 
+Sets the policy that determines what happens when the text is longer than its allowed length.
 
+#### GetOverflowPolicy
+```verse
+# Gets the policy that determine what happens when the text is longer than its allowed length.
+GetOverflowPolicy<native><public>():text_overflow_policy
 ```
-            # Sets the opacity of the displayed text.
+
+Gets the policy that determines what happens when the text is longer than its allowed length.
 
+#### SetTextColor
 ```verse
-            SetTextOpacity<native><public>(InOpacity:type {_X:float where 0.000000 <= _X, _X <= 1.000000}):void
+# Sets the color of the displayed text.
+SetTextColor<native><public>(InColor:color):void
+```
 
+Sets the color of the displayed text.
 
+#### GetTextColor
+```verse
+# Gets the color of the displayed text.
+GetTextColor<native><public>():color
 ```
-            # Gets the opacity of the displayed text.
+
+Gets the color of the displayed text.
 
+#### SetTextOpacity
 ```verse
-            GetTextOpacity<native><public>():type {_X:float where 0.000000 <= _X, _X <= 1.000000}
+# Sets the opacity of the displayed text.
+SetTextOpacity<native><public>(InOpacity:type {_X:float where 0.000000 <= _X, _X <= 1.000000}):void
+```
 
+Sets the opacity of the displayed text.
 
+#### GetTextOpacity
+```verse
+# Gets the opacity of the displayed text.
+GetTextOpacity<native><public>():type {_X:float where 0.000000 <= _X, _X <= 1.000000}
 ```
+
+Gets the opacity of the displayed text.
